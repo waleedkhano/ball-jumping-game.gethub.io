@@ -61,22 +61,21 @@ window.onresize = function () {
     board.width = boardWidth;
 }
 
-
 window.onload = function () {
+    const hasRefreshed = localStorage.getItem("hasRefreshed");
+
     board = document.getElementById("board");
     board.height = boardHeight;
-    board.width = boardWidth
-    context = board.getContext("2d");  // use for drawing on the board
+    board.width = boardWidth;
+    context = board.getContext("2d");
 
-
-
-    //load Images
+    // Load Images
     ballRightImg = new Image();
-    ballRightImg.src = "./assets/ball.png"
+    ballRightImg.src = "./assets/ball.png";
     ball.img = ballRightImg;
     ballRightImg.onload = function () {
-        context.drawImage(ball.img, ball.x, ball.y, ball.width, ball.height)
-    }
+        context.drawImage(ball.img, ball.x, ball.y, ball.width, ball.height);
+    };
     ballleftImg = new Image();
     ballleftImg.src = "./assets/ball.png";
 
@@ -87,10 +86,28 @@ window.onload = function () {
 
     placePlateforms();
 
-
     requestAnimationFrame(update);
-    document.addEventListener("keydown", moveball)
+    document.addEventListener("keydown", moveball);
+
+    // Refresh the page after 3 seconds when first rendered
+    if (!hasRefreshed) {
+        setTimeout(function () {
+            window.location.reload();
+        }, 3000);
+        localStorage.setItem("hasRefreshed", "true");
+    }
+
+    // Refresh the page after 3 seconds of resizing
+    let resizeTimer;
+    window.addEventListener("resize", function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            window.location.reload();
+        }, 3000);
+    });
 };
+
+
 
 
 
@@ -141,45 +158,45 @@ function update() {
     //score 
     updateScore();
     context.fillStyle = "white";
-context.font = "20px Arial";
-context.fillText(score, 5, 20);
+    context.font = "20px Arial";
+    context.fillText(score, 5, 20);
 
-if (gameOver) {
-    let text = "Game over: Press 'Space' to Restart";
-    let mobileText = "Game over: 'Touch' the screen to Restart";
-    let textWidth = context.measureText(text).width;
+    if (gameOver) {
+        let text = "Game over: Press 'Space' to Restart";
+        let mobileText = "Game over: 'Touch' the screen to Restart";
+        let textWidth = context.measureText(text).width;
 
-    let x = (boardWidth - textWidth) / 2;
-    let y = boardHeight * 7 / 8;
+        let x = (boardWidth - textWidth) / 2;
+        let y = boardHeight * 7 / 8;
 
-    context.fillStyle = "black"; // Set background color to black
+        context.fillStyle = "black"; // Set background color to black
 
-    if (boardWidth <= 560) {
-        context.font = "17px Arial";
+        if (boardWidth <= 560) {
+            context.font = "17px Arial";
 
-        let backgroundWidth = textWidth + 20; // Increase the background width
-        let backgroundHeight = parseInt(context.font) + 20; // Increase the background height
+            let backgroundWidth = textWidth + 20; // Increase the background width
+            let backgroundHeight = parseInt(context.font) + 20; // Increase the background height
 
-        // Draw black background rectangle
-        context.fillRect(x - 10, y - backgroundHeight, backgroundWidth, backgroundHeight);
+            // Draw black background rectangle
+            context.fillRect(x - 10, y - backgroundHeight, backgroundWidth, backgroundHeight);
 
-        context.fillStyle = "white"; // Set text color to white
-        let textX = x - 10 + (backgroundWidth - textWidth) / 2; // Center the text horizontally
-        let textY = y - (backgroundHeight - parseInt(context.font)) / 2; // Center the text vertically
-        context.fillText(mobileText, textX, textY);
-    } else {
-        let backgroundWidth = textWidth + 20; // Increase the background width
-        let backgroundHeight = parseInt(context.font) + 20; // Increase the background height
+            context.fillStyle = "white"; // Set text color to white
+            let textX = x - 10 + (backgroundWidth - textWidth) / 2; // Center the text horizontally
+            let textY = y - (backgroundHeight - parseInt(context.font)) / 2; // Center the text vertically
+            context.fillText(mobileText, textX, textY);
+        } else {
+            let backgroundWidth = textWidth + 20; // Increase the background width
+            let backgroundHeight = parseInt(context.font) + 20; // Increase the background height
 
-        // Draw black background rectangle
-        context.fillRect(x - 10, y - backgroundHeight, backgroundWidth, backgroundHeight);
+            // Draw black background rectangle
+            context.fillRect(x - 10, y - backgroundHeight, backgroundWidth, backgroundHeight);
 
-        context.fillStyle = "white"; // Set text color to white
-        let textX = x - 10 + (backgroundWidth - textWidth) / 2; // Center the text horizontally
-        let textY = y - (backgroundHeight - parseInt(context.font)) / 2; // Center the text vertically
-        context.fillText(text, textX, textY);
+            context.fillStyle = "white"; // Set text color to white
+            let textX = x - 10 + (backgroundWidth - textWidth) / 2; // Center the text horizontally
+            let textY = y - (backgroundHeight - parseInt(context.font)) / 2; // Center the text vertically
+            context.fillText(text, textX, textY);
+        }
     }
-}
 
 
 };
@@ -210,7 +227,7 @@ function moveball(e) {
         score = 0;
         maxScore = 0;
         gameOver = false;
-        placePlatforms();
+        placePlateforms();
     }
 }
 //for mobile touch
@@ -258,7 +275,7 @@ function onTouchEnd() {
         score = 0;
         maxScore = 0;
         gameOver = false;
-        placePlatforms();
+        // placePlatforms();
     } else {
         velocityX = 0;
     }
@@ -292,7 +309,6 @@ function placePlateforms() {
 
     plateformArray.push(plateform)
 
-    console.log(boardWidth)
     if (boardWidth <= 560) {
 
         for (let i = 0; i < 15; i++) {
@@ -309,7 +325,72 @@ function placePlateforms() {
 
         }
 
-    } else {
+    } else if (boardWidth <= 400) {
+
+        for (let i = 0; i < 13; i++) {
+            let randomX = Math.floor(Math.random() * boardWidth * 3 / 4);
+            let plateform = {
+                img: plateformImg,
+                x: randomX,
+                y: boardHeight - 100 * i - 30,
+                width: plateformWidth,
+                height: plateformHeight
+            }
+
+            plateformArray.push(plateform)
+
+        }
+            if (boardWidth <= 560) {
+
+        for (let i = 0; i < 15; i++) {
+            let randomX = Math.floor(Math.random() * boardWidth * 3 / 4);
+            let plateform = {
+                img: plateformImg,
+                x: randomX,
+                y: boardHeight - 100 * i - 30,
+                width: plateformWidth,
+                height: plateformHeight
+            }
+
+            plateformArray.push(plateform)
+
+        }
+
+    }
+
+    }  else if (boardWidth <= 360) {
+
+        for (let i = 0; i < 10; i++) {
+            let randomX = Math.floor(Math.random() * boardWidth * 3 / 4);
+            let plateform = {
+                img: plateformImg,
+                x: randomX,
+                y: boardHeight - 100 * i - 30,
+                width: plateformWidth,
+                height: plateformHeight
+            }
+
+            plateformArray.push(plateform)
+
+        }
+
+    }   else if (boardWidth <= 300) {
+
+        for (let i = 0; i < 10; i++) {
+            let randomX = Math.floor(Math.random() * boardWidth * 3 / 4);
+            let plateform = {
+                img: plateformImg,
+                x: randomX,
+                y: boardHeight - 100 * i - 30,
+                width: plateformWidth,
+                height: plateformHeight
+            }
+
+            plateformArray.push(plateform)
+
+        }
+
+    }else {
         for (let i = 0; i < 50; i++) {
             let randomX = Math.floor(Math.random() * boardWidth * 3 / 4);
             let plateform = {
@@ -361,6 +442,3 @@ function updateScore() {
         maxScore -= points;
     }
 }
-
-
-
