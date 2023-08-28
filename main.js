@@ -236,7 +236,6 @@ let touchStartX = null;
 // ...
 
 function onTouchStart(e) {
-    e.preventDefault();
     const touch = e.touches[0];
     touchStartX = touch.clientX;
 }
@@ -249,10 +248,10 @@ function onTouchMove(e) {
     const touchDeltaX = touchX - touchStartX;
 
     if (touchDeltaX > 0) {
-        velocityX = 4;
+        velocityX = 5;
         ball.img = ballRightImg;
     } else if (touchDeltaX < 0) {
-        velocityX = -4;
+        velocityX = -5;
         ball.img = ballleftImg;
     } else {
         velocityX = 0;
